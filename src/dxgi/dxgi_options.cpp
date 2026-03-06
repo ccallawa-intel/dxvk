@@ -7,7 +7,7 @@ namespace dxvk {
   static int32_t parsePciId(const std::string& str) {
     if (str.size() != 4)
       return -1;
-    
+
     int32_t id = 0;
 
     for (size_t i = 0; i < str.size(); i++) {
@@ -79,13 +79,13 @@ namespace dxvk {
     return false;
   }
 
-  
+
   DxgiOptions::DxgiOptions(const Config& config) {
     // Fetch these as a string representing a hexadecimal number and parse it.
     this->customVendorId = parsePciId(config.getOption<std::string>("dxgi.customVendorId"));
     this->customDeviceId = parsePciId(config.getOption<std::string>("dxgi.customDeviceId"));
     this->customDeviceDesc = config.getOption<std::string>("dxgi.customDeviceDesc", "");
-    
+
     // Interpret the memory limits as Megabytes
     this->maxDeviceMemory = VkDeviceSize(config.getOption<int32_t>("dxgi.maxDeviceMemory", 0)) << 20;
     this->maxSharedMemory = VkDeviceSize(config.getOption<int32_t>("dxgi.maxSharedMemory", 0)) << 20;
@@ -112,8 +112,8 @@ namespace dxvk {
     this->hideIntelGpu = config.getOption<Tristate>("dxgi.hideIntelGpu", Tristate::Auto) == Tristate::True;
 
     /* Force vendor ID to non-Intel ID when XeSS is in use */
-    if (isXessUsed()) {
-      Logger::info(str::format("Detected XeSS usage, hiding Intel GPU Vendor"));
+    if (env::getEnvVar("PROTON_XESS_SHIM_ACTIVE") != "1" && isXessUsed()) {
+      Logger::info(str::format("Detected XeSS usage with no PROTON_XESS_SHIM_ACTIVE, hiding Intel GPU Vendor"));
       this->hideIntelGpu = true;
     }
 
@@ -126,5 +126,5 @@ namespace dxvk {
       this->enableHDR = false;
     }
   }
-  
+
 }
